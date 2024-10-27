@@ -1,5 +1,6 @@
 package com.pinguicursos.framescreenmactch;
 
+import com.pinguicursos.framescreenmactch.service.ConsumoAPI;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,7 +14,8 @@ public class FramescreenmactchApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		System.out.println("Hola Mundo desde Spring");
-
+		var consumoAPI = new ConsumoAPI();
+		var json = consumoAPI.obtenerDatos("https://www.omdbapi.com/?apikey=64058bad&t=game+of+thrones");
+		System.out.println(json);
 	}
 }
