@@ -1,6 +1,7 @@
 package com.pinguicursos.framescreenmactch;
 
 
+import com.pinguicursos.framescreenmactch.principal.EjemploStreams;
 import com.pinguicursos.framescreenmactch.principal.Principal;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
@@ -16,8 +17,13 @@ public class FramescreenmactchApplication implements CommandLineRunner {
 
 	@Override
 	public void run(String... args) throws Exception {
-		Principal principal = new Principal();
-		principal.muestraMenu();
+		//Ejecutar Clase Principal
+		//Principal principal = new Principal();
+		//principal.muestraMenu();
+
+		//Ejecutar Clase EjemploStreams
+		EjemploStreams ejemploStreams = new EjemploStreams();
+		ejemploStreams.muestraEjemplo();
 
 
 
