@@ -3,6 +3,7 @@ package com.pinguicursos.framescreenmactch.principal;
 import com.pinguicursos.framescreenmactch.model.DatosEpisodio;
 import com.pinguicursos.framescreenmactch.model.DatosSerie;
 import com.pinguicursos.framescreenmactch.model.DatosTemporada;
+import com.pinguicursos.framescreenmactch.model.Episodio;
 import com.pinguicursos.framescreenmactch.service.ConsumoAPI;
 import com.pinguicursos.framescreenmactch.service.ConvierteDatos;
 
@@ -45,7 +46,7 @@ public class Principal {
 ////        }
 
         //Mostrar el titulo de cada episodio por temporada simplificado con lambda
-        listaTemporadas.forEach(t -> t.datosEpisodios().forEach(e -> System.out.println(e.titulo())));
+        //listaTemporadas.forEach(t -> t.datosEpisodios().forEach(e -> System.out.println(e.titulo())));
 
         //Convertir todas las informaciones a una lista del tipo DatosEpisodio
         List<DatosEpisodio> datosEpisodios = listaTemporadas.stream()
@@ -60,6 +61,12 @@ public class Principal {
                 .limit(5)
                 .forEach(System.out::println);
 
+        //Convertir datos a una lista del tipo Episodio
+        List<Episodio> episodios = listaTemporadas.stream()
+                .flatMap(t -> t.datosEpisodios().stream()
+                        .map(d -> new Episodio(t.numero(), d)))
+                .collect(Collectors.toList());
 
+        episodios.forEach(System.out::println);
     }
 }
