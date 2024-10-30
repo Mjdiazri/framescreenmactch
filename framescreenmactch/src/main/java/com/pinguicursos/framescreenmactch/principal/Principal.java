@@ -7,8 +7,10 @@ import com.pinguicursos.framescreenmactch.service.ConsumoAPI;
 import com.pinguicursos.framescreenmactch.service.ConvierteDatos;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Scanner;
+import java.util.stream.Collectors;
 
 public class Principal {
     private Scanner teclado = new Scanner(System.in);
@@ -41,7 +43,23 @@ public class Principal {
 //
 //            }
 ////        }
+
         //Mostrar el titulo de cada episodio por temporada simplificado con lambda
         listaTemporadas.forEach(t -> t.datosEpisodios().forEach(e -> System.out.println(e.titulo())));
+
+        //Convertir todas las informaciones a una lista del tipo DatosEpisodio
+        List<DatosEpisodio> datosEpisodios = listaTemporadas.stream()
+                .flatMap(t -> t.datosEpisodios().stream())
+                .collect(Collectors.toList());
+
+        //Top 5
+        System.out.println("TOP 5 EPISODIOS");
+        datosEpisodios.stream()
+                .filter(e -> !e.evaluacion().equalsIgnoreCase("N/A"))
+                .sorted(Comparator.comparing(DatosEpisodio::evaluacion).reversed())
+                .limit(5)
+                .forEach(System.out::println);
+
+
     }
 }
