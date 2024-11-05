@@ -3,6 +3,7 @@ package com.pinguicursos.framescreenmactch.principal;
 import com.pinguicursos.framescreenmactch.model.DatosSerie;
 import com.pinguicursos.framescreenmactch.model.DatosTemporada;
 import com.pinguicursos.framescreenmactch.model.Serie;
+import com.pinguicursos.framescreenmactch.repository.SerieRepository;
 import com.pinguicursos.framescreenmactch.service.ConsumoAPI;
 import com.pinguicursos.framescreenmactch.service.ConvierteDatos;
 
@@ -16,8 +17,14 @@ public class PrincipalPersistencia {
         private final String URL_BASE = "https://www.omdbapi.com/?apikey=64058bad&t=";
         private ConvierteDatos conversor = new ConvierteDatos();
         private List<DatosSerie> datosSerie = new ArrayList<>();
+        private SerieRepository repositorio;
 
-        public void muestraElMenu() {
+    public PrincipalPersistencia(SerieRepository repository) {
+        this.repositorio = repository;
+
+    }
+
+    public void muestraElMenu() {
             var opcion = -1;
             while (opcion != 0) {
                 var menu = """
@@ -75,15 +82,22 @@ public class PrincipalPersistencia {
         }
         private void buscarSerieWeb() {
             DatosSerie dates = getDatosSerie();
-            datosSerie.add(dates);
+            Serie serie = new Serie(dates);
+            repositorio.save(serie);
+            //datosSerie.add(dates);
             System.out.println(dates);
         }
 
          private void mostrarSeriesBuscadas() {
-            List<Serie> series = new ArrayList<>();
-            series = datosSerie.stream()
-                    .map(d -> new Serie(d))
-                    .collect(Collectors.toList());
+        //Con postgres
+             List<Serie> series = repositorio.findAll();
+
+
+        //Sin postgres
+//            List<Serie> series = new ArrayList<>();
+//            series = datosSerie.stream()
+//                    .map(d -> new Serie(d))
+//                    .collect(Collectors.toList());
 
             series.stream()
                     .sorted(Comparator.comparing(Serie::getGenero))
