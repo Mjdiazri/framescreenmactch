@@ -2,12 +2,12 @@ package com.pinguicursos.framescreenmactch.principal;
 
 import com.pinguicursos.framescreenmactch.model.DatosSerie;
 import com.pinguicursos.framescreenmactch.model.DatosTemporada;
+import com.pinguicursos.framescreenmactch.model.Serie;
 import com.pinguicursos.framescreenmactch.service.ConsumoAPI;
 import com.pinguicursos.framescreenmactch.service.ConvierteDatos;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Scanner;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class PrincipalPersistencia {
 
@@ -80,6 +80,13 @@ public class PrincipalPersistencia {
         }
 
          private void mostrarSeriesBuscadas() {
-            datosSerie.forEach(System.out::println);
+            List<Serie> series = new ArrayList<>();
+            series = datosSerie.stream()
+                    .map(d -> new Serie(d))
+                    .collect(Collectors.toList());
+
+            series.stream()
+                    .sorted(Comparator.comparing(Serie::getGenero))
+                    .forEach(System.out::println);
         }
 }
