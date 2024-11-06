@@ -2,12 +2,14 @@ package com.pinguicursos.framescreenmactch.principal;
 
 import com.pinguicursos.framescreenmactch.model.DatosSerie;
 import com.pinguicursos.framescreenmactch.model.DatosTemporada;
+import com.pinguicursos.framescreenmactch.model.Episodio;
 import com.pinguicursos.framescreenmactch.model.Serie;
 import com.pinguicursos.framescreenmactch.repository.SerieRepository;
 import com.pinguicursos.framescreenmactch.service.ConsumoAPI;
 import com.pinguicursos.framescreenmactch.service.ConvierteDatos;
 
 import java.util.*;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 public class PrincipalPersistencia {
@@ -18,6 +20,7 @@ public class PrincipalPersistencia {
         private ConvierteDatos conversor = new ConvierteDatos();
         private List<DatosSerie> datosSerie = new ArrayList<>();
         private SerieRepository repositorio;
+        private List<Serie> series;
 
     public PrincipalPersistencia(SerieRepository repository) {
         this.repositorio = repository;
@@ -70,16 +73,43 @@ public class PrincipalPersistencia {
             return datos;
         }
         private void buscarEpisodioPorSerie() {
-            DatosSerie datosSerie = getDatosSerie();
-            List<DatosTemporada> temporadas = new ArrayList<>();
+            // Sin postgres
+            // DatosSerie datosSerie = getDatosSerie();
 
-            for (int i = 1; i <= datosSerie.totalDeTemporadas(); i++) {
-                var json = consumoApi.obtenerDatos(URL_BASE + datosSerie.titulo().replace(" ", "+") + "&season=" + i);
-                DatosTemporada datosTemporada = conversor.obtenerDatos(json, DatosTemporada.class);
-                temporadas.add(datosTemporada);
+            //Con postgres
+            mostrarSeriesBuscadas();
+            System.out.println("Escribe el nombre de la serie donde quieres buscar los episodios");
+            var nombreSerie = teclado.nextLine();
+
+            Optional<Serie> serie = series.stream()
+                    .filter(s -> s.getTitulo().toUpperCase().contains(nombreSerie.toUpperCase()))
+                    .findFirst();
+
+            if(serie.isPresent()){
+                var serieEncontrada = serie.get();
+                List<DatosTemporada> temporadas = new ArrayList<>();
+
+                for (int i = 1; i <= serieEncontrada.getTotalDeTemporadas(); i++) {
+                    var json = consumoApi.obtenerDatos(URL_BASE + serieEncontrada.getTitulo().replace(" ", "+") + "&season=" + i);
+                    DatosTemporada datosTemporada = conversor.obtenerDatos(json, DatosTemporada.class);
+                    temporadas.add(datosTemporada);
+                }
+                temporadas.forEach(System.out::println);
+
+                List<Episodio> episodios = temporadas.stream()
+                        .flatMap(d -> d.datosEpisodios().stream()
+                                .map(e -> new Episodio(d.numero(), e)))
+                        .collect(Collectors.toList());
+
+                serieEncontrada.setEpisodios(episodios);
+                repositorio.save(serieEncontrada);
             }
-            temporadas.forEach(System.out::println);
+
+
+
         }
+
+
         private void buscarSerieWeb() {
             DatosSerie dates = getDatosSerie();
             Serie serie = new Serie(dates);
@@ -90,7 +120,7 @@ public class PrincipalPersistencia {
 
          private void mostrarSeriesBuscadas() {
         //Con postgres
-             List<Serie> series = repositorio.findAll();
+             series = repositorio.findAll();
 
 
         //Sin postgres
