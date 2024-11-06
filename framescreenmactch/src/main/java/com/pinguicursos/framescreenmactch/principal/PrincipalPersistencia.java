@@ -1,9 +1,6 @@
 package com.pinguicursos.framescreenmactch.principal;
 
-import com.pinguicursos.framescreenmactch.model.DatosSerie;
-import com.pinguicursos.framescreenmactch.model.DatosTemporada;
-import com.pinguicursos.framescreenmactch.model.Episodio;
-import com.pinguicursos.framescreenmactch.model.Serie;
+import com.pinguicursos.framescreenmactch.model.*;
 import com.pinguicursos.framescreenmactch.repository.SerieRepository;
 import com.pinguicursos.framescreenmactch.service.ConsumoAPI;
 import com.pinguicursos.framescreenmactch.service.ConvierteDatos;
@@ -34,7 +31,10 @@ public class PrincipalPersistencia {
                     1 - Buscar series
                     2 - Buscar episodios
                     3 - Mostrar series buscadas
-                    
+                    4 - Buscar series por titulo
+                    5 - Top 5 Mejores series
+                    6 - Buscar series por categoria
+                    7 - Filtrar series
                     0 - Salir
                     """;
                 System.out.println(menu);
@@ -53,6 +53,22 @@ public class PrincipalPersistencia {
                         mostrarSeriesBuscadas();
                         break;
 
+                    case 4:
+                        buscarSeriePorTitulo();
+                        break;
+
+                    case 5:
+                        buscarTop5Series();
+                        break;
+
+                    case 6:
+                        buscarSeriePorCategoria();
+                        break;
+
+                    case 7:
+                        filtrarSeriesPorTemporadaYEvaluacion();
+                        break;
+
                     case 0:
                         System.out.println("Cerrando la aplicación...");
                         break;
@@ -62,6 +78,7 @@ public class PrincipalPersistencia {
             }
 
         }
+
 
 
     private DatosSerie getDatosSerie() {
@@ -133,4 +150,44 @@ public class PrincipalPersistencia {
                     .sorted(Comparator.comparing(Serie::getGenero))
                     .forEach(System.out::println);
         }
+
+        private void buscarSeriePorTitulo() {
+            System.out.println("Escriba el nombre de la serie que quiere buscar");
+            var nombreSerie = teclado.nextLine();
+            Optional<Serie> serieBuscada = repositorio.findByTituloContainsIgnoreCase(nombreSerie);
+            if(serieBuscada.isPresent()){
+                System.out.println("La serie buscada es: "+ serieBuscada.get());
+            } else {
+                System.out.println("Serie no encontrada");
+            }
+
+        }
+
+
+        private void buscarTop5Series() {
+            List<Serie> topSeries = repositorio.findTop5ByOrderByEvaluacionDesc();
+            topSeries.forEach(s -> System.out.println("Serie: " + s.getTitulo() + " Evaluacion: " + s.getEvaluacion()));
+        }
+
+        private void buscarSeriePorCategoria() {
+            System.out.println("Escriba la categoria que quiere buscar");
+            var categoriaBuscada = teclado.nextLine();
+            var categoria = Categoria.fromEspanol(categoriaBuscada);
+            List<Serie> seriePorCategoria = repositorio.findByGenero(categoria);
+            System.out.println("Series de la categoria " + categoriaBuscada);
+            seriePorCategoria.forEach(System.out::println);
+        }
+
+
+        private void filtrarSeriesPorTemporadaYEvaluacion() {
+            System.out.println("Escribe el numero de temporadas por el que quieres filtrar las series");
+            var temporadasParaFiltrar = teclado.nextInt();
+            teclado.nextLine();
+            System.out.println("Escribe el valor minimo de evaluacion que quieres revisar");
+            var evaluacionParaFiltrar = teclado.nextDouble();
+            teclado.nextLine();
+            List<Serie> filtroSeries = repositorio.findByTotalDeTemporadasLessThanEqualAndEvaluacionGreaterThanEqual(temporadasParaFiltrar, evaluacionParaFiltrar);
+            System.out.println( "Series filtradas: ");
+            filtroSeries.forEach(s -> System.out.println(s.getTitulo() + " Evaluacion: " + s.getEvaluacion()));
+         }
 }
