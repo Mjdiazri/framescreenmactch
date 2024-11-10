@@ -4,6 +4,7 @@ import com.pinguicursos.framescreenmactch.model.Categoria;
 
 
 public record SerieDto(
+        Long id,
         String titulo,
         Integer totalDeTemporadas,
         Double evaluacion,
